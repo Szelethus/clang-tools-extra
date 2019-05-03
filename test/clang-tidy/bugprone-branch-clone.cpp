@@ -306,8 +306,7 @@ void test_macro12(int in, int &out) {
 
 void test_macro13(int in, int &out) {
   SWITCH(in)
-// CHECK-MESSAGES: :[[@LINE+2]]:5: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
-// CHECK-MESSAGES: :[[@LINE-6]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
     CASE(1)
       out++;
       out++;
@@ -317,39 +316,36 @@ void test_macro13(int in, int &out) {
     CASE(3)
       out++;
       out++;
-// CHECK-MESSAGES: :[[@LINE+2]]:9: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-17]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE-15]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+1]]:9: note: last of these clones ends here
     CASE(4)
       out++;
     CASE(5)
-// CHECK-MESSAGES: :[[@LINE+2]]:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
-// CHECK-MESSAGES: :[[@LINE-24]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
     CASE(6)
       out--;
     CASE(7)
       out--;
-// CHECK-MESSAGES: :[[@LINE+1]]:5: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-28]]:24: note: expanded from macro 'CASE'
-// CHECK-MESSAGES: :[[@LINE+1]]:3: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
-// CHECK-MESSAGES: :[[@LINE-30]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE-25]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+2]]:9: note: last of these clones ends here
+// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
     CASE(8)
       out++;
       out++;
     CASE(9)
       out++;
       out++;
-// CHECK-MESSAGES: :[[@LINE+1]]:5: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-37]]:22: note: expanded from macro 'DEFAULT'
-// CHECK-MESSAGES: :[[@LINE+1]]:3: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
-// CHECK-MESSAGES: :[[@LINE-39]]:24: note: expanded from macro 'DEFAULT'
+// CHECK-MESSAGES: :[[@LINE-34]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+2]]:12: note: last of these clones ends here
+// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
     DEFAULT
       out--;
       out--;
     CASE(10)
       out--;
       out--;
-// CHECK-MESSAGES: :[[@LINE+1]]:5: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-48]]:22: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE-42]]:24: note: expanded from macro 'DEFAULT'
+// CHECK-MESSAGES: :[[@LINE+1]]:9: note: last of these clones ends here
     CASE(12)
       out++;
     CASE(13)
