@@ -1004,3 +1004,23 @@ int ternary4(bool b, int x) {
 int ternary5(bool b1, bool b2, int x) {
   return b1 ? 42 : b2 ? 43 : 42;
 }
+
+#define SWITCH_WITH_LBRACE(b) switch (b) {
+#define SEMICOLON_CASE_COLON(b)                                                \
+  ;                                                                            \
+  case b:
+int d, e;
+void dontCrash() {
+  SWITCH_WITH_LBRACE(d)
+// CHECK-MESSAGES: :[[@LINE+1]]:3: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+  SEMICOLON_CASE_COLON(1)
+    e++;
+    e++;
+  SEMICOLON_CASE_COLON(2)
+    e++;
+    e++;
+  // CHECK-MESSAGES: :[[@LINE-11]]:3: note: expanded from macro 'SEMICOLON_CASE_COLON'
+  // CHECK-MESSAGES: :[[@LINE+1]]:23: note: last of these clones ends here
+  SEMICOLON_CASE_COLON(3);
+  }
+}
