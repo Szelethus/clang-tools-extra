@@ -160,6 +160,37 @@ void test_basic13(int in, int &out) {
   } else;
 }
 
+// We use a comparison that ignores redundant parentheses:
+void test_basic14(int in, int &out) {
+  if (in > 77)
+    out += 2;
+  else
+    (out) += (2);
+}
+
+void test_basic15(int in, int &out) {
+  if (in > 77)
+    ((out += 2));
+  else
+    out += 2;
+}
+
+// ..but does not apply additional simplifications:
+void test_basic16(int in, int &out) {
+  if (in > 77)
+    out += 2;
+  else
+    out += 1 + 1;
+}
+
+// ..and does not forget important parentheses:
+int test_basic17(int a, int b, int c, int mode) {
+  if (mode>8)
+    return (a + b) * c;
+  else
+    return a + b * c;
+}
+
 //=========--------------------==========//
 
 #define PASTE_CODE(x) x
