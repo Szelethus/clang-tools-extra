@@ -1012,6 +1012,6 @@ int ternary4(bool b, int x) {
 }
 
 // We do not detect chains of conditional operators.
-int ternary5(bool b1, bool b2 int x) {
+int ternary5(bool b1, bool b2, int x) {
   return b1 ? 42 : b2 ? 43 : 42;
 }

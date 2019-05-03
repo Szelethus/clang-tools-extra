@@ -197,8 +197,19 @@ void BranchCloneCheck::check(const MatchFinder::MatchResult &Result) {
         diag(BeginCurrent->front()->getBeginLoc(),
              "switch has %0 consecutive identical branches")
             << static_cast<int>(std::distance(BeginCurrent, EndCurrent));
-        diag(Lexer::getLocForEndOfToken((EndCurrent - 1)->back()->getEndLoc(),
-                                        0, *Result.SourceManager,
+
+        SourceLocation EndLoc = (EndCurrent - 1)->back()->getEndLoc();
+        // If the case statement is generated from a macro, it's SourceLocation
+        // may be invalid, resuling in an assertation failure down the line.
+        // While not optimal, try the begin location in this case, it's still
+        // better then nothing.
+        if (EndLoc.isInvalid())
+          EndLoc = (EndCurrent - 1)->back()->getBeginLoc();
+
+        if (EndLoc.isMacroID())
+          EndLoc = Context.getSourceManager().getExpansionLoc(EndLoc);
+
+        diag(Lexer::getLocForEndOfToken(EndLoc, 0, *Result.SourceManager,
                                         getLangOpts()),
              "last of these clones ends here", DiagnosticIDs::Note);
       }
