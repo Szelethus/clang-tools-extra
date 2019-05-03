@@ -160,41 +160,6 @@ void test_basic13(int in, int &out) {
   } else;
 }
 
-// We use a comparison that ignores redundant parentheses:
-void test_basic14(int in, int &out) {
-  if (in > 77)
-    out += 2;
-// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
-  else
-// CHECK-MESSAGES: :[[@LINE-1]]:3: note: else branch starts here
-    (out) += (2);
-}
-
-void test_basic15(int in, int &out) {
-  if (in > 77)
-// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
-    ((out += 2));
-  else
-// CHECK-MESSAGES: :[[@LINE-1]]:3: note: else branch starts here
-    out += 2;
-}
-
-// ..but does not apply additional simplifications: 
-void test_basic16(int in, int &out) {
-  if (in > 77)
-    out += 2;
-  else
-    out += 1 + 1;
-}
-
-// ..and does not forget important parentheses:
-int test_basic17(int a, int b, int c, int mode) {
-  if (mode>8)
-    return (a + b) * c;
-  else
-    return a + b * c;
-}
-
 //=========--------------------==========//
 
 #define PASTE_CODE(x) x
@@ -259,7 +224,7 @@ void test_macro5(int in, int &out) {
 void test_macro6(int in, int &out) {
   if (in > 77)
       out++;
-// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
+// CHECK-MESSAGES: :[[@LINE-2]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
   OTHERWISE_INCREASE;
 // CHECK-MESSAGES: :[[@LINE-1]]:3: note: else branch starts here
 // CHECK-MESSAGES: :[[@LINE-8]]:28: note: expanded from macro 'OTHERWISE_INCREASE'
@@ -269,7 +234,7 @@ void test_macro6(int in, int &out) {
   do {                     \
     if ((a))               \
       (b)++;               \
-    else                   \ 
+    else                   \
       (c)++;               \
   } while (0)
 
@@ -278,7 +243,7 @@ void test_macro7(int in, int &out1, int &out2) {
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
 // CHECK-MESSAGES: :[[@LINE-9]]:5: note: expanded from macro 'COND_INCR'
 // CHECK-MESSAGES: :[[@LINE-3]]:3: note: else branch starts here
-// CHECK-MESSAGES: :[[@LINE-8]]:5: note: expanded from macro 'COND_INCR'
+// CHECK-MESSAGES: :[[@LINE-9]]:5: note: expanded from macro 'COND_INCR'
 }
 
 void test_macro8(int in, int &out1, int &out2) {
@@ -290,17 +255,17 @@ void test_macro9(int in, int &out1, int &out2) {
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
 // CHECK-MESSAGES: :[[@LINE-21]]:5: note: expanded from macro 'COND_INCR'
 // CHECK-MESSAGES: :[[@LINE-3]]:3: note: else branch starts here
-// CHECK-MESSAGES: :[[@LINE-20]]:5: note: expanded from macro 'COND_INCR'
+// CHECK-MESSAGES: :[[@LINE-21]]:5: note: expanded from macro 'COND_INCR'
 }
 
 #define CONCAT(a, b) a##b
 
 void test_macro10(int in, int &out) {
   CONCAT(i, f) (in > 77)
-// CHECK-MESSAGES: :[[@LINE-1]]:10: warning: if with identical then and else branches [bugprone-branch-clone]
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: if with identical then and else branches [bugprone-branch-clone]
     out++;
   CONCAT(el, se)
-// CHECK-MESSAGES: :[[@LINE-1]]:10: note: else branch starts here
+// CHECK-MESSAGES: :[[@LINE-1]]:3: note: else branch starts here
     out++;
 }
 
@@ -308,11 +273,8 @@ void test_macro10(int in, int &out) {
 
 int test_macro11(int count) {
   if (!count)
-// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: repeated branch in conditional chain [bugprone-branch-clone]
     return PROBLEM;
-// CHECK-MESSAGES: :[[@LINE-1]]:10: note: end of the original
   else if (count == 13)
-// CHECK-MESSAGES: :[[@LINE+1]]:5: note: clone 1 starts here
     return -1;
   else
     return count * 2;
@@ -331,7 +293,7 @@ void test_macro12(int in, int &out) {
     out++;
   ELSE
 // CHECK-MESSAGES: :[[@LINE-1]]:3: note: else branch starts here
-// CHECK-MESSAGES: :[[@LINE-12]]:14: note: expanded from macro 'IF'
+// CHECK-MESSAGES: :[[@LINE-11]]:16: note: expanded from macro 'ELSE'
     out++;
     out++;
   END
@@ -344,7 +306,7 @@ void test_macro12(int in, int &out) {
 
 void test_macro13(int in, int &out) {
   SWITCH(in)
-// CHECK-MESSAGES: :[[@LINE+1]]:5: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
+// CHECK-MESSAGES: :[[@LINE+2]]:5: warning: switch has 3 consecutive identical branches [bugprone-branch-clone]
 // CHECK-MESSAGES: :[[@LINE-6]]:24: note: expanded from macro 'CASE'
     CASE(1)
       out++;
@@ -355,19 +317,19 @@ void test_macro13(int in, int &out) {
     CASE(3)
       out++;
       out++;
-// CHECK-MESSAGES: :[[@LINE+1]]:5: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-17]]:22: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+2]]:9: note: last of these clones ends here
+// CHECK-MESSAGES: :[[@LINE-17]]:24: note: expanded from macro 'CASE'
     CASE(4)
       out++;
     CASE(5)
-// CHECK-MESSAGES: :[[@LINE+1]]:3: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
-// CHECK-MESSAGES: :[[@LINE-22]]:24: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE+2]]:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+// CHECK-MESSAGES: :[[@LINE-24]]:24: note: expanded from macro 'CASE'
     CASE(6)
       out--;
     CASE(7)
       out--;
 // CHECK-MESSAGES: :[[@LINE+1]]:5: note: last of these clones ends here
-// CHECK-MESSAGES: :[[@LINE-28]]:22: note: expanded from macro 'CASE'
+// CHECK-MESSAGES: :[[@LINE-28]]:24: note: expanded from macro 'CASE'
 // CHECK-MESSAGES: :[[@LINE+1]]:3: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
 // CHECK-MESSAGES: :[[@LINE-30]]:24: note: expanded from macro 'CASE'
     CASE(8)
